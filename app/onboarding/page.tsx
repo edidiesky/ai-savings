@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Bot, User, Sparkles } from "lucide-react";
+import {Sparkles } from "lucide-react";
 import Progress from "./Progress";
 import Chat from "./Chat";
 

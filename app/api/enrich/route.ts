@@ -32,10 +32,16 @@ export const GET = async (req: Request) => {
     });
 
     return NextResponse.json(data, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: "Error fetching financial insight", error: error.message },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
-      { message: "Error fetching financial insights", error: error.message },
-      { status: error.response?.status || 500 }
+      { message: "an unkwon error ocurred" },
+      { status: 500 }
     );
   }
 };

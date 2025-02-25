@@ -14,10 +14,16 @@ export async function GET(_req: Request) {
     });
 
     return NextResponse.json(response.data, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: "Error fetching currencies insights", error: error.message },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
-      { message: "Error fetching currencies insights", error: error.message },
-      { status: error.response?.status || 500 }
+      { message: "an unkwon error ocurred" },
+      { status: 500 }
     );
   }
 }

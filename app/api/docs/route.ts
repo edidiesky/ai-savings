@@ -11,9 +11,15 @@ export async function GET() {
       status: 200,
       headers: { "Content-Type": "text/yaml" },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: "Error loading Swagger file", error: error.message },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(
-      { message: "Error loading Swagger file", error: error.message },
+      { message: "an unkwon error ocurred" },
       { status: 500 }
     );
   }
