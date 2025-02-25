@@ -4,7 +4,7 @@ import axios from "axios";
 const API_KEY = process.env.API_KEY;
 const BASE_URL = process.env.BASE_URL; // Confirm the correct API endpoint
 
-export async function GET(_req: Request) {
+export async function GET() {
   try {
     const response = await axios.get(`${BASE_URL}/currencies`, {
       headers: {
