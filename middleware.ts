@@ -8,43 +8,38 @@ type SessionClaims = {
   metadata?: {
     onboardingComplete?: boolean;
   };
-  created_at?: number; // Timestamp of user account creation
+  created_at?: number;
 };
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   const { userId, sessionClaims, redirectToSignIn } = await auth();
   const claims = sessionClaims as SessionClaims;
 
-  console.log("Session Claims:", claims); // Debugging
+  // console.log("Session Claims:", claims);
 
   if (!userId) {
-    // Redirect unauthenticated users unless on a public route
     if (!isPublicRoute(req)) {
-      return redirectToSignIn({ returnBackUrl: "/" });
+      return redirectToSignIn({ returnBackUrl: req.nextUrl.pathname }); // Fixes looping redirect
     }
     return NextResponse.next();
   }
 
   const onboardingComplete = claims?.metadata?.onboardingComplete ?? false;
-  const isNewUser = claims?.created_at ? Date.now() - claims.created_at * 1000 < 60000 : false; // Checks if the account was created in the last 60 seconds
+  const isNewUser = claims?.created_at ? Date.now() - claims.created_at * 1000 < 60000 : false;
 
-  // Allow users to access onboarding
   if (isOnboardingRoute(req)) {
     return NextResponse.next();
   }
 
-  // New users go to onboarding
   if (isNewUser) {
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
+    return NextResponse.redirect(`${req.nextUrl.origin}/onboarding`);
   }
 
-  // If onboarding is NOT complete, redirect to onboarding
   if (!onboardingComplete) {
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
+    return NextResponse.redirect(`${req.nextUrl.origin}/onboarding`);
   }
 
-  // Otherwise, go to dashboard
-  return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
+  return NextResponse.redirect(`${req.nextUrl.origin}/dashboard`);
 });
 
 export const config = {
