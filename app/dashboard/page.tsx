@@ -52,12 +52,12 @@ export default function DashboardPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm">
                     Total Balance
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                  <div className="text-2xl sm:text-3xl">
                     $45,231.89
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground">
@@ -67,12 +67,12 @@ export default function DashboardPage() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm">
                     Investments
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                  <div className="text-2xl sm:text-3xl">
                     $32,123.45
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground">
@@ -82,12 +82,12 @@ export default function DashboardPage() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm">
                     Monthly Savings
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">$2,400.00</div>
+                  <div className="text-2xl sm:text-3xl">$2,400.00</div>
                   <p className="text-xs sm:text-sm text-muted-foreground">
                     +12% from last month
                   </p>
@@ -95,12 +95,12 @@ export default function DashboardPage() {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
+                  <CardTitle className="text-sm">
                     Risk Score
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">7.2/10</div>
+                  <div className="text-2xl sm:text-3xl">7.2/10</div>
                   <p className="text-xs sm:text-sm text-muted-foreground">
                     Moderate risk profile
                   </p>

@@ -24,8 +24,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   }
   const onboardingComplete = claims?.metadata?.onboardingComplete ?? false;
   // Redirect user directly to /onboarding if not completed
-  if (userId && onboardingComplete) {
-    return NextResponse.redirect(new URL("/onboarding", req.url));
+  if (userId && !onboardingComplete) {
+    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
   }
 
   return NextResponse.next();

@@ -2,8 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Regular_Font";
+  src: url("../assets/fonts/ClashGrotesk-Regular.otf") format("opentype");
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Regular_Font", sans-serif !important;
 }
 
 @layer base {
