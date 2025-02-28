@@ -1,15 +1,13 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Regular_Font";
-  src: url("../assets/fonts/ClashGrotesk-Regular.otf") format("opentype");
-}
 
-body {
-  font-family: "Regular_Font", sans-serif !important;
-}
+
+
 
 @layer base {
   :root {
@@ -74,4 +72,8 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+body {
+  font-family: "Work Sans", sans-serif;
 }

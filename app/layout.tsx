@@ -2,10 +2,7 @@ import { Metadata } from "next";
 import "./globals.css";
 import { CopilotKit } from "@copilotkit/react-core";
 import "@copilotkit/react-ui/styles.css";
-import {
-  ClerkProvider,
-} from '@clerk/nextjs'
-
+import ProviderLayout from "@/providers/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Coramin Ai-Saving",
@@ -19,16 +16,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider >
     <html lang="en">
       <body>
-        {copilotApiKey ? (
-          <CopilotKit publicApiKey={copilotApiKey}>{children}</CopilotKit>
-        ) : (
-          <>{children}</>
-        )}
+        <ProviderLayout>
+          {copilotApiKey ? (
+            <CopilotKit publicApiKey={copilotApiKey}>{children}</CopilotKit>
+          ) : (
+            <>{children}</>
+          )}
+        </ProviderLayout>
       </body>
     </html>
-    </ClerkProvider>
   );
 }

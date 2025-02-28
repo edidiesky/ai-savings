@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import {Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Progress from "./Progress";
 import Chat from "./Chat";
+import { useSession } from "next-auth/react";
 
 interface Message {
   type: "bot" | "user";
@@ -15,6 +16,15 @@ interface Message {
 
 export default function OnboardingChat() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  console.log("🔍 Session Data:", session, "Status:", status);
+
+  useEffect(() => {
+    if (session?.user?.isOnboarded) router.push("/dashboard");
+  }, [session, router]);
+  useEffect(() => {
+    if (!session) router.push("/");
+  }, [session, router]);
   const [messages, setMessages] = useState<Message[]>([
     {
       type: "bot",
@@ -40,7 +50,7 @@ export default function OnboardingChat() {
     { title: "Investment Preferences", progress: 100 },
   ];
 
-  const handleOptionSelect = (option: string) => {
+  const handleOptionSelect = async (option: string) => {
     setMessages((prev) => [...prev, { type: "user", content: option }]);
 
     setSelectedOptions((prev) => ({
@@ -48,14 +58,18 @@ export default function OnboardingChat() {
       [currentStep]: [...(prev[currentStep] || []), option], // Store selections per step
     }));
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (currentStep === 0) {
         setMessages((prev) => [
           ...prev,
           {
             type: "bot",
             content: "Great choice! Now, what's your risk tolerance level?",
-            options: ["Conservative (Low Risk)", "Moderate (Medium Risk)", "Aggressive (High Risk)"],
+            options: [
+              "Conservative (Low Risk)",
+              "Moderate (Medium Risk)",
+              "Aggressive (High Risk)",
+            ],
           },
         ]);
         setCurrentStep(1);
@@ -64,8 +78,16 @@ export default function OnboardingChat() {
           ...prev,
           {
             type: "bot",
-            content: "Perfect! Finally, which investment types interest you? (You can select multiple)",
-            options: ["Stocks", "ETFs", "Bonds", "Crypto", "Real Estate", "Mutual Funds"],
+            content:
+              "Perfect! Finally, which investment types interest you? (You can select multiple)",
+            options: [
+              "Stocks",
+              "ETFs",
+              "Bonds",
+              "Crypto",
+              "Real Estate",
+              "Mutual Funds",
+            ],
           },
         ]);
         setCurrentStep(2);
@@ -74,70 +96,39 @@ export default function OnboardingChat() {
           ...prev,
           {
             type: "bot",
-            content: "Thanks! I'll now create your personalized investment profile based on your preferences.",
+            content:
+              "Thanks! I'll now create your personalized investment profile based on your preferences.",
           },
         ]);
 
-        // Store in localStorage or send to API
+        // Store user preferences in localStorage
         const userPreferences = {
           financialGoals: selectedOptions[0] || [],
           riskTolerance: selectedOptions[1] || [],
           investmentPreferences: selectedOptions[2] || [],
         };
 
-        localStorage.setItem("userPreferences", JSON.stringify(userPreferences)); // Store in localStorage
+        localStorage.setItem(
+          "userPreferences",
+          JSON.stringify(userPreferences)
+        );
 
-        setTimeout(() => {
-          router.push("/dashboard"); // Redirect to dashboard
-        }, 1500);
+        // Call API to mark onboarding as complete
+        const response = await fetch("/api/auth/onboarding", {
+          method: "POST",
+          credentials: "include",
+        });
+        const data = await response.json();
+
+        if (response.ok) {
+          router.push(data.redirect); // Redirect to dashboard
+        } else {
+          console.error("Onboarding failed:", data.error);
+        }
       }
     }, 500);
   };
 
-  // useEffect(() => {
-  //   const botResponses = [
-  //     {
-  //       content: "Great choice! Now, what's your risk tolerance level?",
-  //       options: [
-  //         "Conservative (Low Risk)",
-  //         "Moderate (Medium Risk)",
-  //         "Aggressive (High Risk)",
-  //       ],
-  //     },
-  //     {
-  //       content:
-  //         "Perfect! Finally, which investment types interest you? (You can select multiple)",
-  //       options: [
-  //         "Stocks",
-  //         "ETFs",
-  //         "Bonds",
-  //         "Crypto",
-  //         "Real Estate",
-  //         "Mutual Funds",
-  //       ],
-  //     },
-  //     {
-  //       content:
-  //         "Thanks! I'll now create your personalized investment profile based on your preferences.",
-  //     },
-  //   ];
-
-  //   if (Object.keys(selectedOptions).length > currentStep) {
-  //     setTimeout(() => {
-  //       if (currentStep < botResponses.length) {
-  //         setMessages((prev) => [
-  //           ...prev,
-  //           { type: "bot", ...botResponses[currentStep] },
-  //         ]);
-  //         setCurrentStep((prev) => prev + 1);
-  //       } else {
-  //         setTimeout(() => router.push("/dashboard"), 1500);
-  //       }
-  //     }, 500);
-  //   }
-  // }, [selectedOptions, currentStep, router]);
-
-  console.log("selectedOptions", selectedOptions)
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/* Header */}

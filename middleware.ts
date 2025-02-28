@@ -1,36 +1,21 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import type { NextRequest } from "next/server";
 
-const isOnboardingRoute = createRouteMatcher(["/onboarding"]);
-const isPublicRoute = createRouteMatcher(["/"]);
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-type SessionClaims = {
-  metadata?: {
-    onboardingComplete?: boolean;
-  };
-};
-export default clerkMiddleware(async (auth, req: NextRequest) => {
-  const { userId, sessionClaims, redirectToSignIn } = await auth();
+  if (!token) return NextResponse.next(); // ✅ Allow unauthenticated users
 
-  // Allow access to onboarding
-  if (userId && isOnboardingRoute(req)) {
-    return NextResponse.next();
+  if (!token.isOnboarded && req.nextUrl.pathname !== "/onboarding") {
+    return NextResponse.redirect(new URL("/onboarding", req.url));
   }
-  const claims = sessionClaims as SessionClaims
 
-  // Redirect to sign-in if not authenticated
-  if (!userId && !isPublicRoute(req)) {
-    return redirectToSignIn({ returnBackUrl: "/" });
-  }
-  const onboardingComplete = claims?.metadata?.onboardingComplete ?? false;
-  // Redirect user directly to /onboarding if not completed
-  if (userId && !onboardingComplete) {
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl.origin));
+  if (token.isOnboarded && req.nextUrl.pathname === "/onboarding") {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
   return NextResponse.next();
-});
+}
 
-export const config = {
-  matcher: ["/((?!_next|.*\\..*).*)", "/(api|trpc)(.*)"],
-};
+export const config = { matcher: ["/dashboard/:path*", "/onboarding"] };
