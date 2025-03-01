@@ -69,7 +69,7 @@ export default function AuthPage() {
                 </div>
               );
             })}
-            <div>
+            <div className='space-y-2'>
               <Button
                 onClick={handleSubmit}
                 className="w-full bg-blue-600 hover:bg-blue-700"
@@ -77,14 +77,14 @@ export default function AuthPage() {
               >
                 Login
               </Button>
-
-              <Link
-                href={'/sign-up'}
-                className="w-full border-blue-600 border text-dark hover:bg-blue-700"
+              <Button
+                className="w-full border-blue-600 bg-white border text-dark hover:bg-blue-700"
                 type="button"
               >
-                Register Here
-              </Link>
+                <Link href={"/sign-up"} className="w-full">
+                  Register Here
+                </Link>
+              </Button>
             </div>
           </form>
           <div className="relative my-4">
