@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import Progress from "./Progress";
 import Chat from "./Chat";
-import { useSession } from "next-auth/react";
+import { useSession, signOut, signIn } from "next-auth/react";
 
 interface Message {
   type: "bot" | "user";
@@ -16,14 +16,12 @@ interface Message {
 
 export default function OnboardingChat() {
   const router = useRouter();
-  const { data: session, status } = useSession();
-  console.log("🔍 Session Data:", session, "Status:", status);
-
+  const { data: session, update } = useSession();
+  console.log("session", session);
   useEffect(() => {
-    if (session?.user?.isOnboarded) router.push("/dashboard");
-  }, [session, router]);
-  useEffect(() => {
-    if (!session) router.push("/");
+    if (session?.user?.isOnboarded) {
+      router.push("/dashboard");
+    }
   }, [session, router]);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -116,12 +114,20 @@ export default function OnboardingChat() {
         // Call API to mark onboarding as complete
         const response = await fetch("/api/auth/onboarding", {
           method: "POST",
-          credentials: "include",
         });
         const data = await response.json();
 
         if (response.ok) {
-          router.push(data.redirect); // Redirect to dashboard
+          await signOut({ redirect: false });
+          await signIn("credentials", {
+            email: session?.user?.email,
+            redirect: false,
+          });
+
+          await update(); // Fetch updated session data
+
+          router.refresh(); // Ensure UI updates
+          router.push("/dashboard"); // Redirect to dashboard
         } else {
           console.error("Onboarding failed:", data.error);
         }

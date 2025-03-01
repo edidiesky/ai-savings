@@ -5,13 +5,16 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  if (!token) return NextResponse.next(); // ✅ Allow unauthenticated users
+  if (!token) return NextResponse.next();
 
-  if (!token.isOnboarded && req.nextUrl.pathname !== "/onboarding") {
+  const isOnboardingPage = req.nextUrl.pathname === "/onboarding";
+  const isDashboardPage = req.nextUrl.pathname.startsWith("/dashboard");
+
+  if (!token.isOnboarded && isDashboardPage) {
     return NextResponse.redirect(new URL("/onboarding", req.url));
   }
 
-  if (token.isOnboarded && req.nextUrl.pathname === "/onboarding") {
+  if (token.isOnboarded && isOnboardingPage) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
