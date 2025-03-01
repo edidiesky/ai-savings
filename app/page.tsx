@@ -77,6 +77,14 @@ export default function AuthPage() {
               >
                 Login
               </Button>
+
+              <Link
+                href={'/sign-up'}
+                className="w-full border-blue-600 border text-dark hover:bg-blue-700"
+                type="button"
+              >
+                Register Here
+              </Link>
             </div>
           </form>
           <div className="relative my-4">
