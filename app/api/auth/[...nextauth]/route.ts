@@ -6,6 +6,7 @@ import { PrismaClient, User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import type { JWT } from "next-auth/jwt";
 import type { Session } from "next-auth";
+
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
@@ -17,14 +18,11 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-
-      async authorize(
-        credentials: Record<"email" | "password", string> | undefined
-      ): Promise<User | null> {
+      async authorize(credentials) {
         if (!credentials || !credentials.email || !credentials.password) {
           throw new Error("Missing credentials");
         }
-      
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
           select: {
@@ -33,22 +31,21 @@ export const authOptions: NextAuthOptions = {
             email: true,
             password: true,
             emailVerified: true,
-            isOnboarded: true
+            isOnboarded: true,
           },
         });
-      
+
         if (!user || !user.password) {
           throw new Error("Invalid credentials");
         }
-      
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) {
           throw new Error("Invalid credentials");
         }
-      
+
         return user;
-      }
-      
+      },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -57,14 +54,14 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: "jwt" },
   callbacks: {
-    async jwt({ token, user }: { token: JWT, user?: any }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.isOnboarded = user.isOnboarded;
       }
       return token;
     },
-    async session({ session, token }: { session: Session, token: JWT }) {
+    async session({ session, token }) {
       session.user = {
         ...session.user,
         id: token.id as string,
@@ -72,8 +69,10 @@ export const authOptions: NextAuthOptions = {
         isOnboarded: token.isOnboarded as boolean,
       };
       return session;
-    }
-    
+    },
+    async redirect({ url, baseUrl }) {
+      return url.startsWith(baseUrl) ? url : `${baseUrl}/dashboard`;
+    },
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: { signIn: "/auth/signin" },

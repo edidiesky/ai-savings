@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import Progress from "./Progress";
 import Chat from "./Chat";
-import { useSession, signOut, signIn } from "next-auth/react";
+import { useSession, updateSession } from "next-auth/react";
 
 interface Message {
   type: "bot" | "user";
@@ -17,12 +17,14 @@ interface Message {
 export default function OnboardingChat() {
   const router = useRouter();
   const { data: session, update } = useSession();
-  console.log("session", session);
+
+  // Redirect if already onboarded
   useEffect(() => {
     if (session?.user?.isOnboarded) {
       router.push("/dashboard");
     }
   }, [session, router]);
+
   const [messages, setMessages] = useState<Message[]>([
     {
       type: "bot",
@@ -53,7 +55,7 @@ export default function OnboardingChat() {
 
     setSelectedOptions((prev) => ({
       ...prev,
-      [currentStep]: [...(prev[currentStep] || []), option], // Store selections per step
+      [currentStep]: [...(prev[currentStep] || []), option],
     }));
 
     setTimeout(async () => {
@@ -106,28 +108,22 @@ export default function OnboardingChat() {
           investmentPreferences: selectedOptions[2] || [],
         };
 
-        localStorage.setItem(
-          "userPreferences",
-          JSON.stringify(userPreferences)
-        );
+        localStorage.setItem("userPreferences", JSON.stringify(userPreferences));
 
         // Call API to mark onboarding as complete
         const response = await fetch("/api/auth/onboarding", {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
         });
+
         const data = await response.json();
 
         if (response.ok) {
-          await signOut({ redirect: false });
-          await signIn("credentials", {
-            email: session?.user?.email,
-            redirect: false,
-          });
-
-          await update(); // Fetch updated session data
-
-          router.refresh(); // Ensure UI updates
-          router.push("/dashboard"); // Redirect to dashboard
+          // Update the session client-side
+          await update({ isOnboarded: true });
+          router.push("/dashboard");
         } else {
           console.error("Onboarding failed:", data.error);
         }
